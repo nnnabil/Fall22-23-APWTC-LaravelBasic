@@ -3,26 +3,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Student;
 
 class StudentController extends Controller
 {
     public function studentList(){
-        $student = array();
+        // $student = array();
 
-        for($i=0; $i<5; $i++){
-            $student = array(
-                "name" => "Student " . ($i+1),
-                "id" =>"00" . ($i+1)
+        // for($i=0; $i<5; $i++){
+        //     $student = array(
+        //         "name" => "Student " . ($i+1),
+        //         "id" =>"00" . ($i+1)
 
-            );
-            $students[] = (object)$student; 
-        }
-        
+        //     );
+        //     $students[] = (object)$student; 
+        // }
+        $students = Student::all(); 
 
         return view('student.studentList')->with('students', $students);
     }
     public function studentEdit(Request $request){
-        return $request->name;
+        $student = Student::where('id', $request->id)->first();
+        // return $student;
+        return view('student.studentEdit')->with('student', $student);
+        // return view('student.studentCreate')->with('student', $student);
+
+    }
+    public function studentEditSubmitted(Request $request){
+        $student = Student::where('id', $request->id)->first();
+        // return  $student;
+        $student->name = $request->name;
+        $student->id = $request->id;
+        $student->save();
+        return redirect()->route('studentList');
+
+    }
+
+    public function studentDelete(Request $request){
+        $student = Student::where('id', $request->id)->first();
+        $student->delete();
+
+        return redirect()->route('studentList');
     }
     public function studentCreate(){
         return view('student.studentCreate');
@@ -37,6 +58,13 @@ class StudentController extends Controller
         ],
         ['name.required'=>"Please put you name here"]
     );
-        return $request;
+        $student = new  Student();
+        $student->name = $request->name;
+        $student->id = $request->id;
+        $student->email = $request->email;
+        $student->save();
+
+        return redirect()->route('studentList');
+    
     }
 }
